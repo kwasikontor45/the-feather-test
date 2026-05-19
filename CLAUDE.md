@@ -19,8 +19,9 @@ After 5 rounds the judge guesses. Reveal screen shows the answer and updates the
 
 ## Repo
 
-`github.com/kwasikontor45/the-feather-test`
+`github.com/k6-bleedin6ed6e-k6/the-feather-test` (on k6 contingency — kwasikontor45 browser login blocked until ~2026-05-22)
 Local path: `~/local-lab/the-feather-test/`
+Remote: `git@github-k6:k6-bleedin6ed6e-k6/the-feather-test.git`
 
 ## Run locally
 
@@ -34,7 +35,22 @@ Server at `http://localhost:5000`.
 
 ## Deploy
 
-Render — `render.yaml` is configured. Push to GitHub, connect on Render, set `ANTHROPIC_API_KEY`.
+Render — already live. Push to k6 repo → auto-deploys.
+
+```bash
+git push origin main   # triggers Render auto-deploy
+```
+
+**Render service:** `the-feather-test` — ID `srv-d86at067r5hc738d1pm0`
+**Live URL:** `https://the-feather-test.onrender.com` ✅
+**Custom domain:** `feathertest.kontor.studio` ⏳ — CNAME pending Cloudflare access (~2026-05-22)
+
+**Render API token:** `rnd_6g7JpcLOZHdazAEqLVylNZBctIlr` (stored in `~/.kimi/sessions` + CLAUDE.md)
+To trigger deploy via API:
+```bash
+curl -X POST -H "Authorization: Bearer rnd_6g7JpcLOZHdazAEqLVylNZBctIlr" \
+  https://api.render.com/v1/services/srv-d86at067r5hc738d1pm0/deploys -d '{}'
+```
 
 ## Key files
 
@@ -78,9 +94,12 @@ Render — `render.yaml` is configured. Push to GitHub, connect on Render, set `
 ## Environment
 
 ```
-ANTHROPIC_API_KEY=...   # in .env (gitignored)
-SECRET_KEY=...          # in .env (gitignored)
+ANTHROPIC_API_KEY=<see .env — gitignored>
+SECRET_KEY=<see .env — gitignored>
 ```
+
+Both are set in `.env` locally (gitignored) and in Render environment vars.
+**⚠️ API key is low on credits** — birds won't respond until Anthropic account is topped up at console.anthropic.com.
 
 ## Known limitations / future work
 
@@ -88,3 +107,10 @@ SECRET_KEY=...          # in .env (gitignored)
 - No authentication — anyone with a room code can join as the bird
 - AI history (`room['history']`) grows unbounded — fine for 5 rounds
 - Add more species in `species-config.json` — no code changes needed
+
+## Pending actions
+
+- [ ] Add `CNAME feathertest → the-feather-test.onrender.com` in Cloudflare (DNS only / grey cloud) — blocked until ~2026-05-22
+- [ ] Update kontor.studio links from `the-feather-test.onrender.com` → `feathertest.kontor.studio` + redeploy
+- [ ] Move repo to kwasikontor45 once GitHub access restored
+- [ ] Top up Anthropic API credits so birds actually respond
