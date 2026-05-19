@@ -17,8 +17,7 @@ def create_app():
     app.register_blueprint(game_bp)
     app.register_blueprint(api_bp, url_prefix='/api')
 
-    # async_mode=threading works with gunicorn; eventlet is used in production
-    socketio.init_app(app, cors_allowed_origins='*', async_mode='threading')
+    socketio.init_app(app, cors_allowed_origins='*', async_mode='eventlet')
 
     from .db.store import init_db
     init_db()

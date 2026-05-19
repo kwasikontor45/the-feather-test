@@ -17,6 +17,7 @@ let repliesReceived = 0;   // tracks A and B replies per round
 // ── connect ──────────────────────────────────────────────────
 socket.on('connect', () => {
   socket.emit('judge_join', { room_code: ROOM_CODE });
+  enableInput();
 });
 
 socket.on('status', (data) => {
@@ -24,8 +25,8 @@ socket.on('status', (data) => {
   roundNumEl.textContent = currentRound;
   if (data.bird_connected) {
     setBirdStatus(true);
-    enableInput();
   }
+  enableInput();
 });
 
 socket.on('bird_arrived', () => {
