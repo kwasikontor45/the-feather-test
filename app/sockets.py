@@ -1,4 +1,3 @@
-import threading
 from flask_socketio import emit, join_room, leave_room
 from . import socketio
 from .routes.game_routes import active_rooms
@@ -75,19 +74,19 @@ def on_send_question(data):
         # no human — mark their slot as no-show
         _route_response(room_code, room, current_round, is_human=True, text='[bird did not respond]')
 
-    # call Claude in background so we don't block the socket thread
+    # call Claude in background — start_background_task uses eventlet.spawn()
+    # so it yields correctly to the event loop (raw threading.Thread blocks httpx)
     def fetch_ai_response():
         try:
             reply = get_bird_response(room['species'], question, room['history'])
             room['history'].append({'role': 'user', 'content': question})
             room['history'].append({'role': 'assistant', 'content': reply})
-        except Exception as e:
+        except Exception:
             reply = f'[the {room["species"]} ruffled its feathers and said nothing]'
 
         _route_response(room_code, room, current_round, is_human=False, text=reply)
 
-    thread = threading.Thread(target=fetch_ai_response, daemon=True)
-    thread.start()
+    socketio.start_background_task(fetch_ai_response)
 
 
 @socketio.on('bird_reply')

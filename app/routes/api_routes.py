@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import eventlet
 from ..ai_bird import get_bird_response
 
 api_bp = Blueprint('api', __name__)
@@ -15,7 +16,9 @@ def bird_response():
         return jsonify({'error': 'species and question are required'}), 400
 
     try:
-        reply = get_bird_response(species, question, history)
+        # run in a greenlet so the httpx call yields to the eventlet loop
+        gt = eventlet.spawn(get_bird_response, species, question, history)
+        reply = gt.wait()
         return jsonify({'reply': reply})
     except ValueError as e:
         return jsonify({'error': str(e)}), 404
