@@ -1,7 +1,23 @@
+import random
+
 from flask_socketio import emit, join_room, leave_room
 from . import socketio
 from .routes.game_routes import active_rooms
 from .ai_bird import get_bird_response
+
+
+def _human_typing_delay(text):
+    """
+    Groq returns in well under a second — sent immediately, that's a dead
+    giveaway next to a human who needs real time to read the question and
+    type a reply. Simulates reading-then-typing: a thinking pause plus a
+    per-character typing rate, both randomized so the delay itself isn't a
+    fixed, fingerprintable pattern.
+    """
+    thinking = random.uniform(0.8, 2.5)
+    chars_per_sec = random.uniform(8.0, 14.0)  # short chat-message composing pace, not formal WPM
+    typing = len(text) / chars_per_sec
+    return min(thinking + typing, 10.0)
 
 
 @socketio.on('judge_join')
@@ -84,6 +100,7 @@ def on_send_question(data):
         except Exception:
             reply = f'[the {room["species"]} ruffled its feathers and said nothing]'
 
+        socketio.sleep(_human_typing_delay(reply))
         _route_response(room_code, room, current_round, is_human=False, text=reply)
 
     socketio.start_background_task(fetch_ai_response)

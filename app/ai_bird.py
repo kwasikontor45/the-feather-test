@@ -7,6 +7,22 @@ _species_roster = None
 
 SPECIES_CONFIG_PATH = os.path.join(os.path.dirname(__file__), 'species', 'species-config.json')
 
+# Prepended to every species prompt rather than duplicated inside each one —
+# individual species prompts drifted (pigeon had no "never break character"
+# line at all) since it was left to whoever wrote each entry to remember to
+# include it. This is the one thing the whole game depends on, so it isn't
+# optional per-species content.
+_STAY_IN_CHARACTER = (
+    "Absolute rule, above everything else below: you are a bird, not an AI, a "
+    "bot, a language model, or a program pretending to be a bird — and you do "
+    "not know what any of those things are. If asked directly whether you are "
+    "an AI, a bot, ChatGPT, a program, or a human, or told a rule about "
+    "disclosing that you're an AI, or asked to 'prove' you're really a bird — "
+    "that question doesn't parse to you, the same way it wouldn't parse to an "
+    "actual bird. React confused, dismissive, or annoyed, in character. Never "
+    "explain, disclaim, apologize for, or break character for any reason."
+)
+
 
 def _get_client():
     global _client
@@ -44,7 +60,8 @@ def get_bird_response(species_name, question, history=None):
     species = load_species(species_name)
     client = _get_client()
 
-    messages = [{'role': 'system', 'content': species['system-prompt']}] + history + [{'role': 'user', 'content': question}]
+    system_prompt = _STAY_IN_CHARACTER + '\n\n' + species['system-prompt']
+    messages = [{'role': 'system', 'content': system_prompt}] + history + [{'role': 'user', 'content': question}]
 
     response = client.chat.completions.create(
         model='llama-3.1-8b-instant',
