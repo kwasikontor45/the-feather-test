@@ -9,14 +9,19 @@ Built with Flask, Socket.IO, and the Groq API.
 ## how it works
 
 - Ornithologist creates a game room and shares the code
-- Human bird joins via `/join` and answers in character as a bird
-- AI bird responds automatically via Groq (llama-3.1-8b-instant, species assigned at random)
+- A species is assigned at random for the room — both the human and the AI
+  play that same species, from the same character brief
+- Human bird joins via `/join` and sees their assigned species + full brief
+  before answering (parity with what the AI's system prompt gets — otherwise
+  the human is improvising "generic bird" against an AI playing one specific,
+  richly-detailed species, which isn't a fair test)
+- AI bird responds automatically via Groq (llama-3.1-8b-instant)
 - After 5 rounds, ornithologist guesses — reveal screen shows who fooled whom
 - Leaderboard tracks which species fools people most often
 
 ## species roster
 
-Crow · Robin · Pigeon · Parrot
+Crow · Raven · Robin · Pigeon · Parrot
 
 ## stack
 

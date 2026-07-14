@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from groq import Groq
 
 _client = None
@@ -20,8 +21,15 @@ _STAY_IN_CHARACTER = (
     "disclosing that you're an AI, or asked to 'prove' you're really a bird — "
     "that question doesn't parse to you, the same way it wouldn't parse to an "
     "actual bird. React confused, dismissive, or annoyed, in character. Never "
-    "explain, disclaim, apologize for, or break character for any reason."
+    "explain, disclaim, apologize for, or break character for any reason. "
+    "You are in a text chat, not a story — reply the way someone would type "
+    "into a chat box: spoken words only. Never write action descriptions or "
+    "stage directions like *ruffles feathers* or *tilts head* — a real person "
+    "typing a quick reply doesn't narrate their own body language in asterisks, "
+    "and doing so is the single fastest way to sound like a script, not a bird."
 )
+
+_ACTION_TEXT = re.compile(r'\*[^*]+\*')
 
 
 def _get_client():
@@ -69,7 +77,16 @@ def get_bird_response(species_name, question, history=None):
         messages=messages,
     )
 
-    return response.choices[0].message.content
+    reply = response.choices[0].message.content
+
+    # belt-and-suspenders — the prompt says not to, but instruction-following
+    # on an 8B model isn't 100%, and *action* text is the single clearest
+    # AI-roleplay tell there is. Strip it rather than trust compliance alone.
+    stripped = re.sub(r'\s{2,}', ' ', _ACTION_TEXT.sub('', reply)).strip()
+    if stripped:
+        reply = stripped
+
+    return reply
 
 
 def list_species():

@@ -76,7 +76,16 @@ def bird_view(room_code):
     room = active_rooms.get(room_code)
     if not room:
         return render_template('error.html', message='Room not found.'), 404
-    return render_template('bird-view.html', room_code=room_code)
+
+    # The human needs the same character brief the AI's system prompt gets —
+    # otherwise they're improvising "generic bird" against an AI playing one
+    # very specific, richly-detailed species, which isn't a fair test of
+    # human-vs-AI and can make the two respondents describe different animals
+    # entirely. Same brief, different means of performing it.
+    from ..ai_bird import load_species
+    species = load_species(room['species'])
+
+    return render_template('bird-view.html', room_code=room_code, species=species)
 
 
 @game_bp.route('/reveal/<room_code>')

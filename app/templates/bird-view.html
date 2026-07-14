@@ -5,8 +5,12 @@
 <div class="bird-layout">
   <div class="bird-header">
     <div class="panel-label">field station // {{ room_code }}</div>
-    <h2>you are a bird.</h2>
-    <p>Answer every question as your character. Do not reveal you are human. Stay in character completely.</p>
+    <h2>you are a {{ species.name }}.</h2>
+    <div class="character-brief">
+      <div class="character-brief-sci">{{ species['scientific-name'] }}</div>
+      <p>{{ species['system-prompt'] }}</p>
+    </div>
+    <p>Answer every question as this character. Do not reveal you are human. Stay in character completely — the AI in this room is playing the exact same species, from the same brief.</p>
     <div class="bird-status-bar">
       <div class="status-dot" id="bird-conn-dot"></div>
       <span id="bird-conn-text">connecting…</span>
